@@ -7,6 +7,32 @@ let bridgeServer: http.Server | undefined;
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(CsvEditorProvider.register(context));
 
+  // Register the "Configure MCP for Claude CLI" command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('sqlCsvTool.configureMcpClaude', async () => {
+      const mcpServerPath = vscode.Uri.joinPath(context.extensionUri, 'out', 'mcp', 'server.js').fsPath;
+
+      const scopeChoice = await vscode.window.showQuickPick(
+        [
+          { label: 'User (all projects)', description: '--scope user', value: 'user' },
+          { label: 'Project (this workspace)', description: '--scope project', value: 'project' },
+        ],
+        { placeHolder: 'Where should the MCP server be available?' }
+      );
+      if (!scopeChoice) return;
+
+      const terminal = vscode.window.createTerminal('Configure MCP');
+      terminal.show();
+      terminal.sendText(
+        `claude mcp add sql-csv-tool --scope ${scopeChoice.value} -- node "${mcpServerPath}"`
+      );
+
+      vscode.window.showInformationMessage(
+        `Running: claude mcp add sql-csv-tool --scope ${scopeChoice.value}. Check the terminal for output.`
+      );
+    })
+  );
+
   // Start the bridge HTTP server for MCP server communication
   startBridgeServer(context);
 }

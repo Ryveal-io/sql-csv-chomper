@@ -2,6 +2,7 @@ import Editor from '@monaco-editor/react';
 import { useCallback, useRef, useEffect } from 'react';
 import type { editor, IDisposable } from 'monaco-editor';
 import type { QueryColumn } from '../types/query';
+import { formatSql } from '../utils/sqlFormat';
 
 const SQL_KEYWORDS = [
   'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'IN', 'LIKE', 'ILIKE',
@@ -229,6 +230,22 @@ export function SqlEditor({ value, onChange, onRun, tableSchemas }: SqlEditorPro
               monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
             ],
             run: () => onRunRef.current(),
+          });
+
+          editor.addAction({
+            id: 'format-sql',
+            label: 'Format SQL',
+            keybindings: [
+              monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF,
+            ],
+            run: (ed) => {
+              const currentValue = ed.getValue();
+              const formatted = formatSql(currentValue);
+              if (formatted !== currentValue) {
+                ed.setValue(formatted);
+                onChange(formatted);
+              }
+            },
           });
         }}
       />

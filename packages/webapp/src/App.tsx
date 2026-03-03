@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { SqlEditor } from './components/SqlEditor';
 import { ResultsTable } from './components/ResultsTable';
 import { Toolbar } from './components/Toolbar';
+import { formatSql } from './utils/sqlFormat';
 import { StatusBar } from './components/StatusBar';
 import { SchemaExplorer } from './components/SchemaExplorer';
 import { FindReplaceBar } from './components/FindReplaceBar';
@@ -158,6 +159,10 @@ export default function App() {
   const handleRun = useCallback(() => {
     runQuery(sql);
   }, [sql, runQuery]);
+
+  const handleFormat = useCallback(() => {
+    setSql(prev => formatSql(prev));
+  }, []);
 
   const handleFilter = useCallback((clause: string) => {
     setSql((prev) => {
@@ -370,6 +375,7 @@ export default function App() {
           isDirty={isDirty}
           onSave={handleSave}
           onSaveAs={() => setShowSaveAs(true)}
+          onFormat={handleFormat}
           onToggleFindReplace={() => setShowFindReplace(prev => !prev)}
           showFindReplace={showFindReplace}
           hasActiveTable={!!activeTable}

@@ -1,14 +1,31 @@
 {
   "name": "sql-csv-tool",
   "displayName": "SQL CSV Tool",
-  "description": "Query and edit CSV files using SQL, powered by DuckDB",
+  "description": "Query and edit CSV files using SQL, powered by DuckDB. Includes column filtering, inline editing, virtual scrolling, Save As, and an MCP server for Claude/Copilot.",
   "version": "0.1.0",
-  "publisher": "sql-csv-tool",
+  "publisher": "MarkSawczuk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryvdx/sql-csv-tool.git"
+  },
+  "homepage": "https://github.com/ryvdx/sql-csv-tool#readme",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
+    "Data Science",
     "Other"
+  ],
+  "keywords": [
+    "csv",
+    "tsv",
+    "sql",
+    "duckdb",
+    "data",
+    "query",
+    "editor",
+    "mcp"
   ],
   "main": "./out/extension.js",
   "activationEvents": [],
@@ -27,6 +44,12 @@
         "priority": "option"
       }
     ],
+    "commands": [
+      {
+        "command": "sqlCsvTool.configureMcpClaude",
+        "title": "SQL CSV Tool: Configure MCP for Claude CLI"
+      }
+    ],
     "mcpServerDefinitionProviders": [
       {
         "id": "sqlCsvTool.mcp",
@@ -35,11 +58,15 @@
     ]
   },
   "scripts": {
+    "vscode:prepublish": "npm run build",
     "build": "node esbuild.mjs",
-    "watch": "node esbuild.mjs --watch"
+    "watch": "node esbuild.mjs --watch",
+    "package-extension": "vsce package",
+    "publish-extension": "vsce publish"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.7.0",
     "esbuild": "^0.24.0",
     "typescript": "^5.7.0"
   }

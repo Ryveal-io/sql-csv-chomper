@@ -202,14 +202,32 @@ export function ColumnFilterPanel({
 
   const handleSelectAll = () => {
     if (profile) {
-      setCheckedValues(new Set(profile.topValues.map(v => v.value)));
-      setIncludeNull(true);
+      if (searchText) {
+        // Only select the visible (search-filtered) values, keeping existing selections
+        setCheckedValues(prev => {
+          const next = new Set(prev);
+          for (const v of filteredValues) next.add(v.value);
+          return next;
+        });
+      } else {
+        setCheckedValues(new Set(profile.topValues.map(v => v.value)));
+        setIncludeNull(true);
+      }
     }
   };
 
   const handleClearAll = () => {
-    setCheckedValues(new Set());
-    setIncludeNull(false);
+    if (searchText) {
+      // Only clear the visible (search-filtered) values, keeping other selections
+      setCheckedValues(prev => {
+        const next = new Set(prev);
+        for (const v of filteredValues) next.delete(v.value);
+        return next;
+      });
+    } else {
+      setCheckedValues(new Set());
+      setIncludeNull(false);
+    }
   };
 
   const handleToggleValue = (value: string) => {

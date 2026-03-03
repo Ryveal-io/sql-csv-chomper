@@ -324,14 +324,20 @@ export function ResultsTable({
                     >
                       <div className="th-content" onClick={header.column.getToggleSortingHandler()}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{ asc: ' \u25B2', desc: ' \u25BC' }[header.column.getIsSorted() as string] ?? ''}
+                        {header.column.getIsSorted() === 'asc' && <span className="sort-indicator sort-active" title="Sorted ascending">{' \u25B2'}</span>}
+                        {header.column.getIsSorted() === 'desc' && <span className="sort-indicator sort-active" title="Sorted descending">{' \u25BC'}</span>}
+                        {!header.column.getIsSorted() && <span className="sort-indicator sort-hint" title="Click to sort">{' \u25B2'}</span>}
                       </div>
                       {activeTable && (
                         <span
                           className={`col-filter-icon${hasFilter ? ' col-filter-icon-active' : ''}`}
                           onClick={(e) => handleFilterClick(e, colName, colType)}
                           title="Filter"
-                        >{'\u25BE'}</span>
+                        >
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M1 2h14l-5.5 6.5V14l-3-2v-3.5z"/>
+                          </svg>
+                        </span>
                       )}
                     </th>
                   );

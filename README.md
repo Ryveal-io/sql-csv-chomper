@@ -6,15 +6,23 @@ A VS Code extension and MCP server for querying and editing CSV/TSV files using 
 
 - **Custom CSV Editor** — Open delimited files directly in VS Code with a SQL IDE-style layout (query editor, schema browser, results pane)
 - **Full SQL Support** — Write and execute DuckDB SQL against your CSV files
-- **Inline Editing** — Edit cells directly in the results pane and save changes back to the file
+- **Inline Editing** — Double-click cells to edit values directly in the results pane
+- **Virtual Scrolling** — Handles large files (500K+ rows) smoothly with automatic chunked loading
+- **Column Filtering** — Excel-style filter panel with value checkboxes, search, null stats, and numeric/date profiling
+- **Column Operations** — Right-click column headers to rename, insert, or delete columns
+- **Find & Replace** — Search and replace across columns with regex and case-sensitive options
+- **Sort** — Click column headers to sort; hover shows sort indicator
+- **Save As** — Export with custom delimiter, quoting, row numbers, and file extension
+- **SQL Formatting** — Format button and Shift+Alt+F to clean up SQL with proper line breaks
+- **Multi-Table Support** — Load multiple CSV files and query across them with JOINs
 - **MCP Server** — Expose CSV querying capabilities to LLMs like Claude and GitHub Copilot
 
 ## Project Structure
 
 ```
 packages/
-  extension/    # VS Code extension
-  webapp/       # React-based editor UI
+  extension/    # VS Code extension (custom editor provider)
+  webapp/       # React-based editor UI (Monaco, TanStack Table, DuckDB WASM)
   mcp-server/   # MCP server for LLM integration
 ```
 
@@ -26,6 +34,44 @@ npm run build        # build all packages
 npm run build:mcp    # build MCP server only
 npm run dev          # run webapp in dev mode
 ```
+
+## Installing as a VS Code Extension
+
+```bash
+npm install
+npm run build
+cd packages/extension
+npx @vscode/vsce package
+```
+
+This produces a `.vsix` file. Install it in VS Code:
+
+```bash
+code --install-extension sql-csv-tool-*.vsix
+```
+
+Or from VS Code: Extensions > `...` menu > "Install from VSIX..."
+
+Once installed, opening any `.csv` or `.tsv` file will use the SQL editor instead of the default text editor.
+
+## Standalone Web App
+
+For quick use without VS Code:
+
+```bash
+npm run dev
+```
+
+Open the URL shown in the terminal. Drag and drop CSV files or use the "Open File" button.
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| Ctrl+Enter | Run query |
+| Shift+Alt+F | Format SQL |
+| Ctrl+H | Toggle Find & Replace |
+| Escape | Close menus / cancel edit |
 
 ## MCP Server Setup
 
