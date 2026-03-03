@@ -9,12 +9,21 @@ import type { ExtensionToWebviewMessage } from '../types/messages';
 interface UseVsCodeMessagingOptions {
   onLoad: (fileName: string, content: Uint8Array) => Promise<void>;
   onRequestExport?: () => Promise<void>;
+  onSetSql?: (sql: string) => void;
+  onRunQuery?: (sql: string) => void;
+  onReload?: () => void;
 }
 
-export function useVsCodeMessaging({ onLoad, onRequestExport }: UseVsCodeMessagingOptions) {
+export function useVsCodeMessaging({
+  onLoad,
+  onRequestExport,
+  onSetSql,
+  onRunQuery,
+  onReload,
+}: UseVsCodeMessagingOptions) {
   const isVsCode = isVsCodeEnvironment();
-  const callbacksRef = useRef({ onLoad, onRequestExport });
-  callbacksRef.current = { onLoad, onRequestExport };
+  const callbacksRef = useRef({ onLoad, onRequestExport, onSetSql, onRunQuery, onReload });
+  callbacksRef.current = { onLoad, onRequestExport, onSetSql, onRunQuery, onReload };
 
   useEffect(() => {
     if (!isVsCode) return;
@@ -26,6 +35,15 @@ export function useVsCodeMessaging({ onLoad, onRequestExport }: UseVsCodeMessagi
           break;
         case 'requestExport':
           await callbacksRef.current.onRequestExport?.();
+          break;
+        case 'setSql':
+          callbacksRef.current.onSetSql?.(msg.sql);
+          break;
+        case 'runQuery':
+          callbacksRef.current.onRunQuery?.(msg.sql);
+          break;
+        case 'reload':
+          callbacksRef.current.onReload?.();
           break;
       }
     });

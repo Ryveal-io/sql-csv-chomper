@@ -1,34 +1,100 @@
 # sql-csv-tool
-Simple VS Code editor meant for easily querying and editing csv files using SQL built on duckdb.
 
+A VS Code extension and MCP server for querying and editing CSV/TSV files using SQL, powered by DuckDB.
 
-Why I am building this?
-- the duckdb extension for VS Code doesn't let me edit the SQL and run it, so its missing out on all the capabilities in SQL
-- that extension also lacks the ablity to support an MCP to simplify LLMs iterating over CSV files, I have too many cases in data modeling and mapping where it takes up too much context to operate on CSV files
+## Features
 
-Here is what I want:
-- want a VS Code extension that i can click on delimited files in the explorer, and open them in a custom editor
-- I want it to behave like a typical SQL IDE, with a:
-    - query editor on top left (80% width default)
-    - schema browser on top right
-    - results pane on the bottom (default to 60% height)
-    - panels should be resizable
-- I want intellisense for the SQL editor too
-- I want to be able to edit cells directly in the results pane and have those changes reflected in the underlying csv file
-- I want to one-click filter of columns by right clicking on a cell and and having a context
-- we might have to paginate the results pane beyond 1k rows
-- It needs to support the color themes of VS Code at least support dark mode
-- I want to be able to delete rows
-- I would like a simple way to add a row too, can click to add a row then edit the cells in the results pane, perhaps clicking on a row number column on the left gutter of the preview pane
+- **Custom CSV Editor** — Open delimited files directly in VS Code with a SQL IDE-style layout (query editor, schema browser, results pane)
+- **Full SQL Support** — Write and execute DuckDB SQL against your CSV files
+- **Inline Editing** — Edit cells directly in the results pane and save changes back to the file
+- **MCP Server** — Expose CSV querying capabilities to LLMs like Claude and GitHub Copilot
 
-- I want to be able to "save" explicitly to save changes to the csv file.
-- some delimited files don't have headers, I think duckdb does a good job of handling this.
-- I would like this extension to include an MCP server which can be used by LLM's like Claude or CoPilot to:
-    - edit the SQ for me
-    - run sql and get result samples
-    - query the metadata of the tables
-    - use this to more easily manipulate CSV files
-    - support alter table statements to add/remove columns
+## Project Structure
 
-For the code itself:
-- coding a webapp the way VS Code wants to package it by storing the content as a string is a pain, I prefer the webapp source to run and test as a standalone webapp ideally, and manage the bundling for VS Code as a separate step.
+```
+packages/
+  extension/    # VS Code extension
+  webapp/       # React-based editor UI
+  mcp-server/   # MCP server for LLM integration
+```
+
+## Building
+
+```bash
+npm install
+npm run build        # build all packages
+npm run build:mcp    # build MCP server only
+npm run dev          # run webapp in dev mode
+```
+
+## MCP Server Setup
+
+The MCP server lets LLMs load, query, edit, and save CSV/TSV files using SQL via DuckDB.
+
+### Claude Code (CLI)
+
+**Option A: CLI command**
+
+```bash
+claude mcp add sql-csv-tool -- node /absolute/path/to/sql-csv-tool/packages/mcp-server/out/server.js
+```
+
+Use `--scope project` to share with your team (writes to `.mcp.json`), or `--scope user` to make it available across all your projects.
+
+**Option B: Project config file (`.mcp.json`)**
+
+Create a `.mcp.json` file in your project root:
+
+```json
+{
+  "mcpServers": {
+    "sql-csv-tool": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/sql-csv-tool/packages/mcp-server/out/server.js"]
+    }
+  }
+}
+```
+
+### GitHub Copilot (VS Code)
+
+Create or edit `.vscode/mcp.json` in your project:
+
+```json
+{
+  "servers": {
+    "sql-csv-tool": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/sql-csv-tool/packages/mcp-server/out/server.js"]
+    }
+  }
+}
+```
+
+Or add it via the command line:
+
+```bash
+code --add-mcp '{"name":"sql-csv-tool","command":"node","args":["/absolute/path/to/sql-csv-tool/packages/mcp-server/out/server.js"]}'
+```
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `load_csv` | Load a CSV/TSV file as a named table |
+| `execute_sql` | Run SQL queries against loaded tables |
+| `list_tables` | List all loaded tables |
+| `list_columns` | Get column names and types for a table |
+| `get_schema` | Get schema for all loaded tables |
+| `update_rows` | Update rows matching a WHERE condition |
+| `insert_row` | Insert a new row |
+| `delete_rows` | Delete rows matching a WHERE condition |
+| `save_table` | Export a table back to a CSV file |
+| `set_editor_sql` | Push SQL into the VS Code editor pane |
+| `run_editor_query` | Set and execute SQL in the VS Code editor |
+
+## Motivation
+
+The existing DuckDB extension for VS Code doesn't let you edit and run SQL freely, and lacks MCP support for LLM-driven CSV workflows. This project fills that gap — providing a proper SQL IDE experience for CSV files and an MCP server for AI-assisted data work.

@@ -4,16 +4,58 @@ import { getWebviewContent } from './util/getWebviewContent';
 
 export class CsvEditorProvider implements vscode.CustomEditorProvider<CsvDocument> {
   private static readonly viewType = 'sqlCsvTool.csvEditor';
+  private static _instance: CsvEditorProvider | null = null;
+
+  // Track active webview panels for bridge access
+  private readonly _activeWebviews = new Map<string, vscode.WebviewPanel>();
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
+    const provider = new CsvEditorProvider(context);
+    CsvEditorProvider._instance = provider;
     return vscode.window.registerCustomEditorProvider(
       CsvEditorProvider.viewType,
-      new CsvEditorProvider(context),
+      provider,
       {
         webviewOptions: { retainContextWhenHidden: true },
         supportsMultipleEditorsPerDocument: false,
       }
     );
+  }
+
+  public static get instance(): CsvEditorProvider | null {
+    return CsvEditorProvider._instance;
+  }
+
+  /** Send a message to the most recently active webview */
+  public sendToActiveWebview(message: unknown): boolean {
+    // Find the active or most recent webview
+    for (const [, panel] of this._activeWebviews) {
+      if (panel.active) {
+        panel.webview.postMessage(message);
+        return true;
+      }
+    }
+    // Fall back to any webview
+    const first = this._activeWebviews.values().next().value;
+    if (first) {
+      first.webview.postMessage(message);
+      return true;
+    }
+    return false;
+  }
+
+  /** Get info about the active editor */
+  public getActiveEditorInfo(): { hasActiveEditor: boolean; fileName?: string } {
+    for (const [uri, panel] of this._activeWebviews) {
+      if (panel.active) {
+        return { hasActiveEditor: true, fileName: uri.split('/').pop() };
+      }
+    }
+    if (this._activeWebviews.size > 0) {
+      const firstUri = this._activeWebviews.keys().next().value;
+      return { hasActiveEditor: true, fileName: firstUri?.split('/').pop() };
+    }
+    return { hasActiveEditor: false };
   }
 
   private constructor(private readonly context: vscode.ExtensionContext) {}
@@ -36,6 +78,13 @@ export class CsvEditorProvider implements vscode.CustomEditorProvider<CsvDocumen
     webviewPanel: vscode.WebviewPanel,
     _token: vscode.CancellationToken
   ): Promise<void> {
+    const uriKey = document.uri.toString();
+    this._activeWebviews.set(uriKey, webviewPanel);
+
+    webviewPanel.onDidDispose(() => {
+      this._activeWebviews.delete(uriKey);
+    });
+
     webviewPanel.webview.options = {
       enableScripts: true,
       localResourceRoots: [

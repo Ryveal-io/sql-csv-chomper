@@ -1,6 +1,9 @@
-import { loadCsvFromBytes } from './duckdb';
+export interface PickedFile {
+  name: string;
+  content: Uint8Array;
+}
 
-export async function loadFileFromPicker(): Promise<string> {
+export async function pickFile(): Promise<PickedFile> {
   return new Promise((resolve, reject) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -13,8 +16,7 @@ export async function loadFileFromPicker(): Promise<string> {
       }
       try {
         const buffer = await file.arrayBuffer();
-        await loadCsvFromBytes(file.name, new Uint8Array(buffer));
-        resolve(file.name);
+        resolve({ name: file.name, content: new Uint8Array(buffer) });
       } catch (err) {
         reject(err);
       }

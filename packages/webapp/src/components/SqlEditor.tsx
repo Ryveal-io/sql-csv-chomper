@@ -72,10 +72,10 @@ interface SqlEditorProps {
   value: string;
   onChange: (value: string) => void;
   onRun: () => void;
-  schema?: QueryColumn[];
+  tableSchemas?: Record<string, QueryColumn[]>;
 }
 
-export function SqlEditor({ value, onChange, onRun, schema }: SqlEditorProps) {
+export function SqlEditor({ value, onChange, onRun, tableSchemas }: SqlEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
   const completionDisposableRef = useRef<IDisposable | null>(null);
@@ -88,7 +88,7 @@ export function SqlEditor({ value, onChange, onRun, schema }: SqlEditorProps) {
     return 'vs-dark';
   }, []);
 
-  // Register/update completion provider when schema changes
+  // Register/update completion provider when table schemas change
   useEffect(() => {
     const monaco = monacoRef.current;
     if (!monaco) return;
@@ -96,7 +96,16 @@ export function SqlEditor({ value, onChange, onRun, schema }: SqlEditorProps) {
     // Dispose previous provider
     completionDisposableRef.current?.dispose();
 
-    const schemaColumns = schema ?? [];
+    const schemas = tableSchemas ?? {};
+    const tableNames = Object.keys(schemas);
+
+    // Collect all columns across all tables (deduplicated)
+    const allColumns = new Map<string, string>();
+    for (const cols of Object.values(schemas)) {
+      for (const col of cols) {
+        allColumns.set(col.name, col.type);
+      }
+    }
 
     completionDisposableRef.current = monaco.languages.registerCompletionItemProvider('sql', {
       triggerCharacters: ['.', ' '],
@@ -109,26 +118,30 @@ export function SqlEditor({ value, onChange, onRun, schema }: SqlEditorProps) {
           endColumn: word.endColumn,
         };
 
-        // Check if we're after "data." for column completions
+        // Check if we're after "tablename." for column completions
         const lineContent = model.getLineContent(position.lineNumber);
         const textBeforeCursor = lineContent.slice(0, position.column - 1);
-        const afterDot = textBeforeCursor.match(/\bdata\.(\w*)$/i);
 
-        if (afterDot) {
-          // After "data." — suggest only column names
-          const dotRange = {
-            ...range,
-            startColumn: position.column - (afterDot[1]?.length ?? 0),
-          };
-          return {
-            suggestions: schemaColumns.map((col) => ({
-              label: col.name,
-              kind: monaco.languages.CompletionItemKind.Field,
-              detail: col.type,
-              insertText: col.name,
-              range: dotRange,
-            })),
-          };
+        for (const tableName of tableNames) {
+          const escaped = tableName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`(?:\\b${escaped}|"${escaped}")\\.([\\w]*)$`, 'i');
+          const match = textBeforeCursor.match(pattern);
+          if (match) {
+            const dotRange = {
+              ...range,
+              startColumn: position.column - (match[1]?.length ?? 0),
+            };
+            const tableColumns = schemas[tableName] ?? [];
+            return {
+              suggestions: tableColumns.map((col) => ({
+                label: col.name,
+                kind: monaco.languages.CompletionItemKind.Field,
+                detail: `${tableName}.${col.name}: ${col.type}`,
+                insertText: col.name,
+                range: dotRange,
+              })),
+            };
+          }
         }
 
         const suggestions = [
@@ -140,21 +153,21 @@ export function SqlEditor({ value, onChange, onRun, schema }: SqlEditorProps) {
             range,
           })),
 
-          // Table name
-          {
-            label: 'data',
+          // Table names
+          ...tableNames.map((name) => ({
+            label: name,
             kind: monaco.languages.CompletionItemKind.Struct,
-            detail: 'Loaded CSV table',
-            insertText: 'data',
+            detail: `Table (${schemas[name]?.length ?? 0} columns)`,
+            insertText: /^[a-zA-Z_]\w*$/.test(name) ? name : `"${name}"`,
             range,
-          },
+          })),
 
-          // Column names
-          ...schemaColumns.map((col) => ({
-            label: col.name,
+          // All column names (unqualified)
+          ...Array.from(allColumns.entries()).map(([name, type]) => ({
+            label: name,
             kind: monaco.languages.CompletionItemKind.Field,
-            detail: col.type,
-            insertText: col.name,
+            detail: type,
+            insertText: name,
             range,
           })),
 
@@ -177,7 +190,7 @@ export function SqlEditor({ value, onChange, onRun, schema }: SqlEditorProps) {
       completionDisposableRef.current?.dispose();
       completionDisposableRef.current = null;
     };
-  }, [schema]);
+  }, [tableSchemas]);
 
   return (
     <div className="sql-editor-container">

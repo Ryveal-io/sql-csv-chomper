@@ -3,10 +3,18 @@ import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
 import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
 import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
 import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
-import type { QueryResult } from '../types/query';
+import type { QueryColumn, QueryResult } from '../types/query';
 
 let db: duckdb.AsyncDuckDB | null = null;
 let conn: duckdb.AsyncDuckDBConnection | null = null;
+
+// Track loaded tables: tableName -> originalFileName
+const loadedTables = new Map<string, string>();
+
+function tableNameFromFileName(fileName: string): string {
+  const stem = fileName.replace(/\.[^.]+$/, '');
+  return stem.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^(\d)/, '_$1') || 'data';
+}
 
 export async function initDuckDb(): Promise<void> {
   if (db) return;
@@ -27,13 +35,37 @@ export async function initDuckDb(): Promise<void> {
 export async function loadCsvFromBytes(
   fileName: string,
   content: Uint8Array
-): Promise<void> {
+): Promise<string> {
   if (!db || !conn) throw new Error('DuckDB not initialized');
+
+  const tableName = tableNameFromFileName(fileName);
   await db.registerFileBuffer(fileName, content);
   await conn.query(`
-    CREATE OR REPLACE TABLE data AS
+    CREATE OR REPLACE TABLE "${tableName}" AS
     SELECT * FROM read_csv_auto('${fileName}')
   `);
+
+  loadedTables.set(tableName, fileName);
+  return tableName;
+}
+
+export async function describeTable(tableName: string): Promise<QueryColumn[]> {
+  if (!conn) throw new Error('DuckDB not connected');
+  const result = await conn.query(
+    `SELECT column_name, column_type FROM (DESCRIBE "${tableName}")`
+  );
+  const columns: QueryColumn[] = [];
+  for (let i = 0; i < result.numRows; i++) {
+    columns.push({
+      name: String(result.getChild('column_name')?.get(i)),
+      type: String(result.getChild('column_type')?.get(i)),
+    });
+  }
+  return columns;
+}
+
+export function getLoadedTables(): Map<string, string> {
+  return new Map(loadedTables);
 }
 
 export async function executeQuery(sql: string): Promise<QueryResult> {
@@ -60,9 +92,10 @@ export async function executeQuery(sql: string): Promise<QueryResult> {
   return { columns, rows, rowCount: result.numRows, queryTimeMs };
 }
 
-export async function exportCsv(): Promise<Uint8Array> {
+export async function exportCsv(tableName?: string): Promise<Uint8Array> {
   if (!conn || !db) throw new Error('DuckDB not connected');
-  await conn.query("COPY data TO 'export.csv' (FORMAT CSV, HEADER)");
+  const table = tableName || (loadedTables.keys().next().value ?? 'data');
+  await conn.query(`COPY "${table}" TO 'export.csv' (FORMAT CSV, HEADER)`);
   const buffer = await db.copyFileToBuffer('export.csv');
   return buffer;
 }

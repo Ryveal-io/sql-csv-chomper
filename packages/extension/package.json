@@ -26,6 +26,12 @@
         ],
         "priority": "option"
       }
+    ],
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "sqlCsvTool.mcp",
+        "label": "SQL CSV Tool"
+      }
     ]
   },
   "scripts": {

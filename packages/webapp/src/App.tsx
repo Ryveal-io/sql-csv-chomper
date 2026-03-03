@@ -1,19 +1,21 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Layout } from './components/Layout';
 import { SqlEditor } from './components/SqlEditor';
 import { ResultsTable } from './components/ResultsTable';
 import { Toolbar } from './components/Toolbar';
 import { StatusBar } from './components/StatusBar';
-import { SchemaPanel } from './components/SchemaPanel';
+import { SchemaExplorer } from './components/SchemaExplorer';
 import { useDuckDb } from './hooks/useDuckDb';
 import { useQueryExecution } from './hooks/useQueryExecution';
 import { useVsCodeMessaging } from './hooks/useVsCodeMessaging';
-import { exportCsv, executeQuery as execQuery } from './services/duckdb';
+import { exportCsv, describeTable } from './services/duckdb';
 import { postMessageToExtension } from './services/vscodeMessenger';
-import { loadFileFromPicker } from './services/standaloneAdapter';
-import type { QueryColumn } from './types/query';
+import { pickFile } from './services/standaloneAdapter';
+import type { TableInfo } from './types/query';
 
-const DEFAULT_QUERY = 'SELECT * FROM data LIMIT 1000';
+function defaultQueryForTable(tableName: string): string {
+  return `SELECT * FROM "${tableName}" LIMIT 1000`;
+}
 
 function insertWhereClause(sql: string, clause: string): string {
   const trimmed = sql.trim().replace(/;+\s*$/, '');
@@ -49,43 +51,60 @@ function insertWhereClause(sql: string, clause: string): string {
 }
 
 export default function App() {
-  const [sql, setSql] = useState(DEFAULT_QUERY);
-  const [fileName, setFileName] = useState('');
-  const [tableColumns, setTableColumns] = useState<QueryColumn[]>([]);
+  const [sql, setSql] = useState('');
+  const [tables, setTables] = useState<TableInfo[]>([]);
+  const [activeTable, setActiveTable] = useState<string | null>(null);
 
   const { isReady, isLoading: dbLoading, error: dbError, loadFile } = useDuckDb();
   const { result, error: queryError, isExecuting, runQuery } = useQueryExecution();
 
   const handleLoad = useCallback(async (name: string, content: Uint8Array) => {
-    await loadFile(name, content);
-    setFileName(name);
-    const r = await runQueryAndGetSchema(DEFAULT_QUERY);
-    if (r) setTableColumns(r);
-  }, [loadFile]);
+    const tableName = await loadFile(name, content);
+    const columns = await describeTable(tableName);
+    setTables(prev => {
+      // Replace if table already exists, otherwise append
+      const existing = prev.findIndex(t => t.name === tableName);
+      const entry: TableInfo = { name: tableName, fileName: name, columns };
+      if (existing >= 0) {
+        const next = [...prev];
+        next[existing] = entry;
+        return next;
+      }
+      return [...prev, entry];
+    });
+    setActiveTable(tableName);
+    const query = defaultQueryForTable(tableName);
+    setSql(query);
+    runQuery(query);
+  }, [loadFile, runQuery]);
+
+  const handleSelectTable = useCallback((tableName: string) => {
+    setActiveTable(tableName);
+    const query = defaultQueryForTable(tableName);
+    setSql(query);
+    runQuery(query);
+  }, [runQuery]);
 
   const handleExport = useCallback(async () => {
-    const csvData = await exportCsv();
+    const csvData = await exportCsv(activeTable ?? undefined);
     postMessageToExtension({ type: 'csvData', content: Array.from(csvData) });
+  }, [activeTable]);
+
+  const handleSetSql = useCallback((newSql: string) => {
+    setSql(newSql);
   }, []);
+
+  const handleRunQuery = useCallback((newSql: string) => {
+    setSql(newSql);
+    runQuery(newSql);
+  }, [runQuery]);
 
   const { isVsCode } = useVsCodeMessaging({
     onLoad: handleLoad,
     onRequestExport: handleExport,
+    onSetSql: handleSetSql,
+    onRunQuery: handleRunQuery,
   });
-
-  const runQueryAndGetSchema = useCallback(async (query: string) => {
-    await runQuery(query);
-    // After initial load, get the schema
-    try {
-      const schemaResult = await execQuery("SELECT column_name, column_type FROM (DESCRIBE data)");
-      return schemaResult.rows.map(row => ({
-        name: String(row.column_name),
-        type: String(row.column_type),
-      }));
-    } catch {
-      return null;
-    }
-  }, [runQuery]);
 
   const handleRun = useCallback(() => {
     runQuery(sql);
@@ -102,39 +121,56 @@ export default function App() {
 
   const handleOpenFile = useCallback(async () => {
     try {
-      const name = await loadFileFromPicker();
-      setFileName(name);
-      const cols = await runQueryAndGetSchema(DEFAULT_QUERY);
-      if (cols) setTableColumns(cols);
+      const { name, content } = await pickFile();
+      await handleLoad(name, content);
     } catch {
       // User cancelled file picker
     }
-  }, [runQueryAndGetSchema]);
+  }, [handleLoad]);
+
+  // Build table schemas map for intellisense
+  const tableSchemas = useMemo(() => {
+    const schemas: Record<string, import('./types/query').QueryColumn[]> = {};
+    for (const t of tables) {
+      schemas[t.name] = t.columns;
+    }
+    return schemas;
+  }, [tables]);
+
+  // Get active table's columns for result type hints
+  const activeColumns = useMemo(() => {
+    return tables.find(t => t.name === activeTable)?.columns ?? [];
+  }, [tables, activeTable]);
 
   const error = dbError || queryError;
+  const activeFileName = tables.find(t => t.name === activeTable)?.fileName ?? '';
 
   return (
     <Layout
       toolbar={
         <Toolbar
           onRun={handleRun}
-          onOpenFile={!isVsCode ? handleOpenFile : undefined}
           isLoading={dbLoading || isExecuting}
-          fileName={fileName}
+          fileName={activeFileName}
         />
       }
       sqlEditor={
-        <SqlEditor value={sql} onChange={setSql} onRun={handleRun} schema={tableColumns} />
+        <SqlEditor value={sql} onChange={setSql} onRun={handleRun} tableSchemas={tableSchemas} />
       }
       schemaPanel={
-        <SchemaPanel columns={tableColumns} tableName={fileName || 'data'} />
+        <SchemaExplorer
+          tables={tables}
+          activeTable={activeTable}
+          onSelectTable={handleSelectTable}
+          onOpenFile={!isVsCode ? handleOpenFile : undefined}
+        />
       }
       resultsTable={
         <ResultsTable
           result={result}
           error={error}
           isLoading={dbLoading && !isReady}
-          columnTypes={tableColumns}
+          columnTypes={activeColumns}
           onFilter={handleFilter}
         />
       }

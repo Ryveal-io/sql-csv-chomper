@@ -28,8 +28,8 @@ export function useDuckDb() {
       });
   }, []);
 
-  const loadFile = async (fileName: string, content: Uint8Array) => {
-    await loadCsvFromBytes(fileName, content);
+  const loadFile = async (fileName: string, content: Uint8Array): Promise<string> => {
+    return await loadCsvFromBytes(fileName, content);
   };
 
   return { ...state, loadFile };

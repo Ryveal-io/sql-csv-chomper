@@ -6,10 +6,32 @@
       "WebFetch(domain:code.visualstudio.com)",
       "Bash(npm run build:webapp)",
       "Bash(npm run build:extension)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:motherduck.com)",
+      "WebFetch(domain:www.kenmuse.com)",
+      "WebFetch(domain:modelcontextprotocol.info)",
+      "Bash(npm install)",
+      "Bash(npm view @duckdb/node-api versions --json)",
+      "Bash(npm view duckdb versions --json)",
+      "Bash(npm view duckdb-async versions --json)",
+      "Bash(npm view duckdb-async --json)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:app.unpkg.com)",
+      "Bash(npm run build:mcp)",
+      "Bash(timeout 5 node packages/mcp-server/out/server.js)",
+      "Bash(printf '{\"\"jsonrpc\"\":\"\"2.0\"\",\"\"id\"\":1,\"\"method\"\":\"\"initialize\"\",\"\"params\"\":{\"\"protocolVersion\"\":\"\"2024-11-05\"\",\"\"capabilities\"\":{},\"\"clientInfo\"\":{\"\"name\"\":\"\"test\"\",\"\"version\"\":\"\"1.0\"\"}}}\\\\n')",
+      "Read(//private/tmp/**)",
+      "Bash(node -e \":*)",
+      "Bash(gh api repos/motherduckdb/mcp-server-motherduck --jq '.description, .default_branch, .language, .topics')",
+      "Bash(node /tmp/test-mcp.js)",
+      "mcp__sql-csv-tool__*",
+      "WebSearch"
     ],
     "additionalDirectories": [
-      "/Users/msawczuk/Documents/GitHub/sql-csv-tool"
+      "/Users/msawczuk/Documents/GitHub/sql-csv-tool",
+      "/tmp",
+      "/private/tmp"
     ]
   }
 }
