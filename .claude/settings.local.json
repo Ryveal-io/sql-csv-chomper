@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:duckdb.org)",
+      "WebFetch(domain:code.visualstudio.com)",
+      "Bash(npm run build:webapp)",
+      "Bash(npm run build:extension)",
+      "Bash(npm run build)"
+    ],
+    "additionalDirectories": [
+      "/Users/msawczuk/Documents/GitHub/sql-csv-tool"
+    ]
+  }
+}

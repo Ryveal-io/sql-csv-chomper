@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-all",
+      "type": "shell",
+      "command": "npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "watch-all",
+      "dependsOn": [
+        "watch-webapp",
+        "watch-extension"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "watch-webapp",
+      "type": "shell",
+      "command": "npm run watch",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/webapp"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "watch-extension",
+      "type": "shell",
+      "command": "npm run watch",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/extension"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

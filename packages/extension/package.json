@@ -1,0 +1,40 @@
+{
+  "name": "sql-csv-tool",
+  "displayName": "SQL CSV Tool",
+  "description": "Query and edit CSV files using SQL, powered by DuckDB",
+  "version": "0.1.0",
+  "publisher": "sql-csv-tool",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "sqlCsvTool.csvEditor",
+        "displayName": "SQL CSV Editor",
+        "selector": [
+          { "filenamePattern": "*.csv" },
+          { "filenamePattern": "*.tsv" },
+          { "filenamePattern": "*.tab" },
+          { "filenamePattern": "*.jsonl" },
+          { "filenamePattern": "*.txt" }
+        ],
+        "priority": "option"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  }
+}

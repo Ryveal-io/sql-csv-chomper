@@ -1,0 +1,16 @@
+{
+  "name": "sql-csv-tool-root",
+  "private": true,
+  "workspaces": [
+    "packages/extension",
+    "packages/webapp"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run dev --workspace=packages/webapp",
+    "build:extension": "npm run build --workspace=packages/extension",
+    "build:webapp": "npm run build --workspace=packages/webapp",
+    "watch:extension": "npm run watch --workspace=packages/extension",
+    "watch:webapp": "npm run watch --workspace=packages/webapp"
+  }
+}

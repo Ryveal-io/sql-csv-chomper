@@ -1,0 +1,13 @@
+order_id	customer_name	product	quantity	unit_price	order_date	region	status
+1001	Acme Corp	Widget A	50	12.99	2024-01-05	Northeast	shipped
+1002	Globex Inc	Widget B	25	24.50	2024-01-07	West	delivered
+1003	Initech	Gadget X	10	149.99	2024-01-08	South	shipped
+1004	Acme Corp	Widget A	100	11.99	2024-01-12	Northeast	delivered
+1005	Umbrella LLC	Gadget Y	5	299.00	2024-01-15	Midwest	pending
+1006	Globex Inc	Widget A	75	12.99	2024-01-18	West	shipped
+1007	Stark Industries	Gadget X	30	139.99	2024-01-20	Northeast	delivered
+1008	Wayne Enterprises	Widget B	200	22.00	2024-01-22	South	delivered
+1009	Initech	Gadget Y	2	299.00	2024-01-25	South	cancelled
+1010	Acme Corp	Widget B	60	24.50	2024-01-28	Northeast	pending
+1011	Umbrella LLC	Widget A	40	12.99	2024-02-01	Midwest	shipped
+1012	Stark Industries	Gadget Y	8	289.00	2024-02-03	Northeast	delivered
