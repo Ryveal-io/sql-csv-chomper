@@ -1,6 +1,6 @@
 // Messages FROM extension host TO webview
 export type ExtensionToWebviewMessage =
-  | { type: 'load'; fileName: string; content: number[] }
+  | { type: 'load'; fileName: string; fileUri: string }
   | { type: 'requestExport' }
   | { type: 'setSql'; sql: string }
   | { type: 'runQuery'; sql: string }

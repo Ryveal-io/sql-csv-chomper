@@ -30,7 +30,7 @@ export function getWebviewContent(
     connect-src ${webview.cspSource} https: data: blob:;
   ">
   <link href="${styleUri}" rel="stylesheet">
-  <title>SQL CSV Tool</title>
+  <title>SQL CSV Chomper</title>
 </head>
 <body>
   <div id="root"></div>

@@ -1,7 +1,7 @@
 {
-  "name": "sql-csv-tool",
-  "displayName": "SQL CSV Tool",
-  "description": "Query and edit CSV files using SQL, powered by DuckDB. Includes column filtering, inline editing, virtual scrolling, Save As, and an MCP server for Claude/Copilot.",
+  "name": "sql-csv-chomper",
+  "displayName": "SQL CSV Chomper",
+  "description": "Chomp through CSV files with SQL! Powered by DuckDB with column filtering, inline editing, virtual scrolling, Save As, and an MCP server for Claude/Copilot.",
   "version": "0.1.1",
   "publisher": "MarkSawczuk",
   "repository": {
@@ -26,7 +26,8 @@
     "data",
     "query",
     "editor",
-    "mcp"
+    "mcp",
+    "chomper"
   ],
   "main": "./out/extension.js",
   "activationEvents": [],
@@ -34,7 +35,7 @@
     "customEditors": [
       {
         "viewType": "sqlCsvTool.csvEditor",
-        "displayName": "SQL CSV Editor",
+        "displayName": "SQL CSV Chomper",
         "selector": [
           { "filenamePattern": "*.csv" },
           { "filenamePattern": "*.tsv" },
@@ -48,12 +49,12 @@
     "commands": [
       {
         "command": "sqlCsvTool.openFile",
-        "title": "Open with SQL Tool",
+        "title": "Open with SQL CSV Chomper",
         "icon": "$(database)"
       },
       {
         "command": "sqlCsvTool.configureMcpClaude",
-        "title": "SQL CSV Tool: Configure MCP for Claude CLI"
+        "title": "SQL CSV Chomper: Configure MCP for Claude CLI"
       }
     ],
     "menus": {
@@ -75,7 +76,7 @@
     "mcpServerDefinitionProviders": [
       {
         "id": "sqlCsvTool.mcp",
-        "label": "SQL CSV Tool"
+        "label": "SQL CSV Chomper"
       }
     ]
   },

@@ -295,7 +295,7 @@ async function main() {
   await server.connect(transport);
 
   // Log to stderr (stdout is reserved for MCP protocol)
-  console.error('SQL CSV Tool MCP server started');
+  console.error('SQL CSV Chomper MCP server started');
   if (bridge.isConnected()) {
     console.error(`VS Code bridge connected on port ${process.env.VSCODE_BRIDGE_PORT}`);
   } else {

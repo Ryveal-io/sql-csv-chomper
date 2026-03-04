@@ -85,10 +85,13 @@ export class CsvEditorProvider implements vscode.CustomEditorProvider<CsvDocumen
       this._activeWebviews.delete(uriKey);
     });
 
+    // Include the file's directory so the webview can fetch the file directly
+    const fileDir = vscode.Uri.joinPath(document.uri, '..');
     webviewPanel.webview.options = {
       enableScripts: true,
       localResourceRoots: [
         vscode.Uri.joinPath(this.context.extensionUri, 'webview-dist'),
+        fileDir,
       ],
     };
 
@@ -100,12 +103,12 @@ export class CsvEditorProvider implements vscode.CustomEditorProvider<CsvDocumen
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
       switch (message.type) {
         case 'ready': {
-          const bytes = document.content;
           const fileName = document.uri.path.split('/').pop() ?? 'data.csv';
+          const fileUri = webviewPanel.webview.asWebviewUri(document.uri).toString();
           webviewPanel.webview.postMessage({
             type: 'load',
             fileName,
-            content: Array.from(bytes),
+            fileUri,
           });
           break;
         }

@@ -132,7 +132,7 @@ function startBridgeServer(context: vscode.ExtensionContext) {
     const addr = bridgeServer!.address();
     if (addr && typeof addr === 'object') {
       const port = addr.port;
-      console.log(`SQL CSV Tool bridge server listening on port ${port}`);
+      console.log(`SQL CSV Chomper bridge server listening on port ${port}`);
 
       // Register the MCP server definition provider if the API is available
       registerMcpServer(context, port);
@@ -155,7 +155,7 @@ function registerMcpServer(context: vscode.ExtensionContext, bridgePort: number)
         provideMcpServerDefinitions: () => {
           return [
             {
-              label: 'SQL CSV Tool',
+              label: 'SQL CSV Chomper',
               type: 'stdio',
               command: 'node',
               args: [mcpServerPath],

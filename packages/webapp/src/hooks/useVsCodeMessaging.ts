@@ -30,9 +30,12 @@ export function useVsCodeMessaging({
 
     const cleanup = onMessageFromExtension(async (msg: ExtensionToWebviewMessage) => {
       switch (msg.type) {
-        case 'load':
-          await callbacksRef.current.onLoad(msg.fileName, new Uint8Array(msg.content));
+        case 'load': {
+          const response = await fetch(msg.fileUri);
+          const buffer = await response.arrayBuffer();
+          await callbacksRef.current.onLoad(msg.fileName, new Uint8Array(buffer));
           break;
+        }
         case 'requestExport':
           await callbacksRef.current.onRequestExport?.();
           break;
