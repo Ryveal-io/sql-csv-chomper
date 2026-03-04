@@ -39,7 +39,9 @@
       "Bash(qlmanage -t -s 256 -o /Users/msawczuk/Documents/GitHub/sql-csv-tool/packages/extension/images/ /Users/msawczuk/Documents/GitHub/sql-csv-tool/packages/extension/images/icon.svg)",
       "Bash(code --uninstall-extension MarkSawczuk.sql-csv-tool)",
       "Bash(code --list-extensions)",
-      "Bash(code --uninstall-extension sql-csv-tool.sql-csv-tool)"
+      "Bash(code --uninstall-extension sql-csv-tool.sql-csv-tool)",
+      "Bash(npx vsce package --no-dependencies)",
+      "Bash(npx @vscode/vsce publish --no-dependencies)"
     ],
     "additionalDirectories": [
       "/Users/msawczuk/Documents/GitHub/sql-csv-tool",

@@ -112,13 +112,13 @@ claude mcp add sql-csv-tool --scope project -- node "$CHOMPER_MCP"
     "sql-csv-tool": {
       "type": "stdio",
       "command": "node",
-      "args": ["~/.vscode/extensions/marksawczuk.sql-csv-chomper-0.1.1/out/mcp/server.js"]
+      "args": ["~/.vscode/extensions/marksawczuk.sql-csv-chomper-0.2.0/out/mcp/server.js"]
     }
   }
 }
 ```
 
-> **Note:** The version number in the path (e.g. `0.1.1`) will change with updates. Use the `find` command above or the VS Code command palette to get the correct path.
+> **Note:** The version number in the path (e.g. `0.2.0`) will change with updates. Use the `find` command above or the VS Code command palette to get the correct path.
 
 ### MCP tools available
 
