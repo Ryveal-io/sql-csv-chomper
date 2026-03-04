@@ -8,6 +8,7 @@ import { StatusBar } from './components/StatusBar';
 import { SchemaExplorer } from './components/SchemaExplorer';
 import { FindReplaceBar } from './components/FindReplaceBar';
 import { SaveAsDialog, type SaveAsOptions } from './components/SaveAsDialog';
+import type { FilterSelection } from './components/ColumnFilterPanel';
 import { useDuckDb } from './hooks/useDuckDb';
 import { useQueryExecution } from './hooks/useQueryExecution';
 import { useVsCodeMessaging } from './hooks/useVsCodeMessaging';
@@ -85,6 +86,7 @@ export default function App() {
   const [activeTable, setActiveTable] = useState<string | null>(null);
   const [dirtyTables, setDirtyTables] = useState<Set<string>>(new Set());
   const [columnFilters, setColumnFilters] = useState<Map<string, string>>(new Map());
+  const [columnFilterSelections, setColumnFilterSelections] = useState<Map<string, FilterSelection>>(new Map());
   const [showFindReplace, setShowFindReplace] = useState(false);
   const [showSaveAs, setShowSaveAs] = useState(false);
 
@@ -106,7 +108,7 @@ export default function App() {
       return [...prev, entry];
     });
     setActiveTable(tableName);
-    setColumnFilters(new Map());
+    setColumnFilters(new Map()); setColumnFilterSelections(new Map());
     const query = defaultQueryForTable(tableName);
     setSql(query);
     runQuery(query);
@@ -114,7 +116,7 @@ export default function App() {
 
   const handleSelectTable = useCallback((tableName: string) => {
     setActiveTable(tableName);
-    setColumnFilters(new Map());
+    setColumnFilters(new Map()); setColumnFilterSelections(new Map());
     const query = defaultQueryForTable(tableName);
     setSql(query);
     runQuery(query);
@@ -132,7 +134,7 @@ export default function App() {
       if (prev === tableName) return null;
       return prev;
     });
-    if (activeTable === tableName) setColumnFilters(new Map());
+    if (activeTable === tableName) setColumnFilters(new Map()); setColumnFilterSelections(new Map());
   }, [activeTable]);
 
   const handleExport = useCallback(async () => {
@@ -243,8 +245,13 @@ export default function App() {
   }, [activeTable, tables, isVsCode]);
 
   // Column filter handlers
-  const handleApplyColumnFilter = useCallback((columnName: string, clause: string) => {
+  const handleApplyColumnFilter = useCallback((columnName: string, clause: string, selection: FilterSelection) => {
     if (!activeTable) return;
+    setColumnFilterSelections(prev => {
+      const next = new Map(prev);
+      next.set(columnName, selection);
+      return next;
+    });
     setColumnFilters(prev => {
       const next = new Map(prev);
       next.set(columnName, clause);
@@ -257,6 +264,11 @@ export default function App() {
 
   const handleClearColumnFilter = useCallback((columnName: string) => {
     if (!activeTable) return;
+    setColumnFilterSelections(prev => {
+      const next = new Map(prev);
+      next.delete(columnName);
+      return next;
+    });
     setColumnFilters(prev => {
       const next = new Map(prev);
       next.delete(columnName);
@@ -418,6 +430,7 @@ export default function App() {
           onCellEdit={handleCellEdit}
           activeTable={activeTable}
           columnFilters={columnFilters}
+          columnFilterSelections={columnFilterSelections}
           onApplyColumnFilter={handleApplyColumnFilter}
           onClearColumnFilter={handleClearColumnFilter}
           onRenameColumn={handleRenameColumn}

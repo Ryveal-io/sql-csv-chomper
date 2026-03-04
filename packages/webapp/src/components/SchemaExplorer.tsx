@@ -15,6 +15,18 @@ export function SchemaExplorer({ tables, activeTable, onSelectTable, onOpenFile,
   const [columnStats, setColumnStats] = useState<Map<string, Map<string, ColumnQuickStats>>>(new Map());
   const loadingRef = useRef<Set<string>>(new Set());
 
+  // Auto-expand the active table
+  useEffect(() => {
+    if (activeTable) {
+      setExpandedTables(prev => {
+        if (prev.has(activeTable)) return prev;
+        const next = new Set(prev);
+        next.add(activeTable);
+        return next;
+      });
+    }
+  }, [activeTable]);
+
   const toggleExpanded = (tableName: string) => {
     setExpandedTables(prev => {
       const next = new Set(prev);

@@ -52,7 +52,10 @@
       {
         "command": "sqlCsvTool.openFile",
         "title": "Open with SQL CSV Chomper",
-        "icon": "$(database)"
+        "icon": {
+          "light": "images/icon.png",
+          "dark": "images/icon.png"
+        }
       },
       {
         "command": "sqlCsvTool.configureMcpClaude",

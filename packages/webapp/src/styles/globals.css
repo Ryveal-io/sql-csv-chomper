@@ -187,7 +187,10 @@ thead {
 }
 
 th {
-  background: var(--vscode-editorWidget-background);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--vscode-editorWidget-background, #252526);
   border-bottom: 2px solid var(--vscode-focusBorder);
   border-right: 1px solid var(--vscode-panel-border);
   padding: 4px 20px 4px 8px;
@@ -275,11 +278,8 @@ th {
 }
 
 .th-content {
-  display: inline-block;
+  display: block;
   cursor: pointer;
-  padding-right: 18px;
-  width: 100%;
-  box-sizing: border-box;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -307,11 +307,13 @@ th:hover .sort-hint {
 
 .col-filter-icon {
   position: absolute;
-  right: 4px;
+  right: 2px;
   top: 50%;
   transform: translateY(-50%);
   opacity: 0;
   cursor: pointer;
+  background: inherit;
+  z-index: 1;
   padding: 2px;
   border-radius: 2px;
   transition: opacity 0.1s;
@@ -332,7 +334,7 @@ th:hover .col-filter-icon {
 .col-filter-icon-active {
   opacity: 1 !important;
   color: var(--vscode-button-background);
-  background: rgba(14, 99, 156, 0.2);
+  background: inherit;
   border-radius: 2px;
 }
 

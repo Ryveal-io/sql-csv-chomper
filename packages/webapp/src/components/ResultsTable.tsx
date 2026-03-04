@@ -10,7 +10,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import type { QueryResult, QueryColumn } from '../types/query';
 import { CellContextMenu, type SelectedCell } from './CellContextMenu';
-import { ColumnFilterPanel } from './ColumnFilterPanel';
+import { ColumnFilterPanel, type FilterSelection } from './ColumnFilterPanel';
 
 interface CellId {
   rowIndex: number;
@@ -50,7 +50,8 @@ interface ResultsTableProps {
   onCellEdit?: (rowIndex: number, rowid: number, columnName: string, newValue: string) => void;
   activeTable?: string | null;
   columnFilters?: Map<string, string>;
-  onApplyColumnFilter?: (columnName: string, clause: string) => void;
+  columnFilterSelections?: Map<string, FilterSelection>;
+  onApplyColumnFilter?: (columnName: string, clause: string, selection: FilterSelection) => void;
   onClearColumnFilter?: (columnName: string) => void;
   onRenameColumn?: (oldName: string, newName: string) => void;
   onInsertColumn?: (afterColumn: string, position: 'left' | 'right') => void;
@@ -76,6 +77,7 @@ export function ResultsTable({
   onCellEdit,
   activeTable,
   columnFilters,
+  columnFilterSelections,
   onApplyColumnFilter,
   onClearColumnFilter,
   onRenameColumn,
@@ -434,8 +436,9 @@ export function ResultsTable({
           columnName={filterPanel.columnName}
           columnType={filterPanel.columnType}
           anchorRect={filterPanel.rect}
-          onApplyFilter={(colName, clause) => {
-            onApplyColumnFilter?.(colName, clause);
+          previousSelection={columnFilterSelections?.get(filterPanel.columnName)}
+          onApplyFilter={(colName, clause, selection) => {
+            onApplyColumnFilter?.(colName, clause, selection);
             setFilterPanel(null);
           }}
           onClearFilter={(colName) => {

@@ -81,6 +81,8 @@ export class CsvEditorProvider implements vscode.CustomEditorProvider<CsvDocumen
     const uriKey = document.uri.toString();
     this._activeWebviews.set(uriKey, webviewPanel);
 
+    webviewPanel.iconPath = vscode.Uri.joinPath(this.context.extensionUri, 'images', 'icon.png');
+
     webviewPanel.onDidDispose(() => {
       this._activeWebviews.delete(uriKey);
     });

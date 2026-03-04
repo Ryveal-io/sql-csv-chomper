@@ -11,12 +11,20 @@ const GRAN_LABELS: { key: Granularity; label: string }[] = [
   { key: 'year', label: 'Y' },
 ];
 
+/** Stores the checkbox selection state so we can restore it when the panel reopens. */
+export interface FilterSelection {
+  uncheckedValues: string[];
+  includeNull: boolean;
+}
+
 interface ColumnFilterPanelProps {
   tableName: string;
   columnName: string;
   columnType: string;
   anchorRect: DOMRect;
-  onApplyFilter: (columnName: string, clause: string) => void;
+  /** Previous selection state — if provided, restores checkboxes instead of checking all. */
+  previousSelection?: FilterSelection;
+  onApplyFilter: (columnName: string, clause: string, selection: FilterSelection) => void;
   onClearFilter: (columnName: string) => void;
   onClose: () => void;
 }
@@ -122,6 +130,7 @@ export function ColumnFilterPanel({
   columnName,
   columnType,
   anchorRect,
+  previousSelection,
   onApplyFilter,
   onClearFilter,
   onClose,
@@ -159,15 +168,21 @@ export function ColumnFilterPanel({
     return () => { cancelled = true; };
   }, [tableName, columnName, columnType]);
 
-  // Initialize checkboxes when profile loads
+  // Initialize checkboxes when profile loads — restore previous selection if available
   useEffect(() => {
     if (profile && !allInitialized) {
-      const all = new Set(profile.topValues.map(v => v.value));
-      setCheckedValues(all);
-      setIncludeNull(true);
+      const allValues = profile.topValues.map(v => v.value);
+      if (previousSelection) {
+        const uncheckedSet = new Set(previousSelection.uncheckedValues);
+        setCheckedValues(new Set(allValues.filter(v => !uncheckedSet.has(v))));
+        setIncludeNull(previousSelection.includeNull);
+      } else {
+        setCheckedValues(new Set(allValues));
+        setIncludeNull(true);
+      }
       setAllInitialized(true);
     }
-  }, [profile, allInitialized]);
+  }, [profile, allInitialized, previousSelection]);
 
   // Load date profile
   const loadDateProfile = useCallback((gran: Granularity) => {
@@ -313,7 +328,9 @@ export function ColumnFilterPanel({
     }
 
     if (parts.length > 0) {
-      onApplyFilter(columnName, parts.join(' AND '));
+      const allValues = profile.topValues.map(v => v.value);
+      const uncheckedValues = allValues.filter(v => !checkedValues.has(v));
+      onApplyFilter(columnName, parts.join(' AND '), { uncheckedValues, includeNull });
     } else {
       onClearFilter(columnName);
     }
