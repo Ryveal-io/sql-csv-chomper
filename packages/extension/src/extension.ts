@@ -7,6 +7,16 @@ let bridgeServer: http.Server | undefined;
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(CsvEditorProvider.register(context));
 
+  // Register the "Open with SQL Tool" command (explorer context menu + editor title button)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('sqlCsvTool.openFile', (uri?: vscode.Uri) => {
+      const fileUri = uri ?? vscode.window.activeTextEditor?.document.uri;
+      if (fileUri) {
+        vscode.commands.executeCommand('vscode.openWith', fileUri, 'sqlCsvTool.csvEditor');
+      }
+    })
+  );
+
   // Register the "Configure MCP for Claude CLI" command
   context.subscriptions.push(
     vscode.commands.registerCommand('sqlCsvTool.configureMcpClaude', async () => {

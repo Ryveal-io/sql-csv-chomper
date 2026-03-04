@@ -32,7 +32,10 @@
       "Bash(code --install-extension /Users/msawczuk/Documents/GitHub/sql-csv-tool/packages/extension/sql-csv-tool-0.1.0.vsix)",
       "Read(//Users/msawczuk/**)",
       "Bash(code --install-extension /Users/msawczuk/Documents/GitHub/sql-csv-tool/packages/extension/sql-csv-tool-0.1.0.vsix --force)",
-      "Bash(pkill -f \"vite\")"
+      "Bash(pkill -f \"vite\")",
+      "Bash(npx @vscode/vsce package)",
+      "Bash(npx @vscode/vsce package --allow-missing-repository)",
+      "Bash(npx @vscode/vsce ls)"
     ],
     "additionalDirectories": [
       "/Users/msawczuk/Documents/GitHub/sql-csv-tool",
