@@ -173,13 +173,17 @@ export default function App() {
   }, [runQuery]);
 
   const handleOpenFile = useCallback(async () => {
-    try {
-      const { name, content } = await pickFile();
-      await handleLoad(name, content);
-    } catch {
-      // User cancelled file picker
+    if (isVsCode) {
+      postMessageToExtension({ type: 'openFile' });
+    } else {
+      try {
+        const { name, content } = await pickFile();
+        await handleLoad(name, content);
+      } catch {
+        // User cancelled file picker
+      }
     }
-  }, [handleLoad]);
+  }, [handleLoad, isVsCode]);
 
   const editable = isEditableDefaultQuery(sql, activeTable);
 
@@ -399,7 +403,7 @@ export default function App() {
           tables={tables}
           activeTable={activeTable}
           onSelectTable={handleSelectTable}
-          onOpenFile={!isVsCode ? handleOpenFile : undefined}
+          onOpenFile={handleOpenFile}
           onRemoveTable={handleRemoveTable}
         />
       }

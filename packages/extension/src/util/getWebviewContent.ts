@@ -38,7 +38,7 @@ export function getWebviewContent(
 <body>
   <div id="root"></div>
   <script nonce="${nonce}">window.__WEBVIEW_ASSETS_BASE__ = "${assetsBaseUri}";</script>
-  <script nonce="${nonce}" src="${scriptUri}"></script>
+  <script nonce="${nonce}" type="module" src="${scriptUri}"></script>
 </body>
 </html>`;
 }

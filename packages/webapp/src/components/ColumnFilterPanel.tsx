@@ -79,6 +79,36 @@ function formatPeriod(period: string, granularity: Granularity): string {
   }
 }
 
+/** Compute the start (inclusive) and end (exclusive) of a time bucket for filtering. */
+function periodRange(period: string, granularity: Granularity): { start: string; end: string } {
+  const d = new Date(period);
+  let end: Date;
+  switch (granularity) {
+    case 'hour':
+      end = new Date(d);
+      end.setHours(end.getHours() + 1);
+      break;
+    case 'day':
+      end = new Date(d);
+      end.setDate(end.getDate() + 1);
+      break;
+    case 'week':
+      end = new Date(d);
+      end.setDate(end.getDate() + 7);
+      break;
+    case 'month':
+      end = new Date(d);
+      end.setMonth(end.getMonth() + 1);
+      break;
+    case 'year':
+      end = new Date(d);
+      end.setFullYear(end.getFullYear() + 1);
+      break;
+  }
+  const fmt = (dt: Date) => dt.toISOString().slice(0, granularity === 'hour' ? 16 : 10);
+  return { start: fmt(d), end: fmt(end) };
+}
+
 function sqlLiteral(value: string, columnType: string): string {
   if (value === 'NULL') return 'NULL';
   if (/INT|FLOAT|DOUBLE|DECIMAL|NUMERIC|REAL|BIGINT|SMALLINT|TINYINT|HUGEINT/i.test(columnType)) {
@@ -416,7 +446,18 @@ export function ColumnFilterPanel({
                     const dateMax = Math.max(...dateProfile.buckets.map(b => b.count), 1);
                     const pct = (bucket.count / dateMax) * 100;
                     return (
-                      <li key={i} className="col-profile-row">
+                      <li
+                        key={i}
+                        className="col-profile-row col-profile-row-clickable"
+                        onClick={() => {
+                          const col = `"${columnName.replace(/"/g, '""')}"`;
+                          const { start, end } = periodRange(bucket.period, granularity);
+                          const clause = `${col} >= '${start}' AND ${col} < '${end}'`;
+                          onApplyFilter(columnName, clause);
+                          onClose();
+                        }}
+                        title="Click to filter by this period"
+                      >
                         <div className="col-profile-bar" style={{ width: `${pct}%` }} />
                         <span className="col-profile-value">{formatPeriod(bucket.period, granularity)}</span>
                         <span className="col-profile-count">{bucket.count.toLocaleString()}</span>

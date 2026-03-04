@@ -275,8 +275,14 @@ th {
 }
 
 .th-content {
-  display: inline;
+  display: inline-block;
   cursor: pointer;
+  padding-right: 18px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sort-indicator {
@@ -521,8 +527,28 @@ th.col-filtered {
   color: #fff;
 }
 
+.schema-col-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 0 6px;
+  padding: 2px 4px 2px 20px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  opacity: 0.4;
+  border-bottom: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.2));
+  margin-bottom: 1px;
+}
+
+.schema-col-h-type,
+.schema-col-h-unique,
+.schema-col-h-null {
+  text-align: right;
+  min-width: 42px;
+}
+
 .schema-tree .schema-columns {
-  padding-left: 20px;
+  padding-left: 0;
 }
 
 .schema-columns {
@@ -532,20 +558,64 @@ th.col-filtered {
 }
 
 .schema-column {
-  display: flex;
-  justify-content: space-between;
-  padding: 2px 0;
-  font-size: 12px;
-}
-
-.schema-column-name {
-  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-}
-
-.schema-column-type {
-  opacity: 0.5;
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 0 6px;
+  align-items: center;
+  padding: 1px 4px 1px 20px;
   font-size: 11px;
-  margin-left: 8px;
+}
+
+.schema-column:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.schema-col-name {
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schema-col-type {
+  text-align: right;
+  opacity: 0.5;
+  font-size: 10px;
+  min-width: 42px;
+}
+
+.schema-col-unique {
+  text-align: right;
+  opacity: 0.45;
+  font-size: 10px;
+  min-width: 42px;
+}
+
+.schema-col-null {
+  text-align: right;
+  opacity: 0.45;
+  font-size: 10px;
+  min-width: 42px;
+}
+
+.schema-open-btn-inline {
+  background: none;
+  border: 1px dashed var(--vscode-widget-border, rgba(128,128,128,0.3));
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  margin-top: 8px;
+  width: 100%;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.schema-open-btn-inline:hover {
+  opacity: 1;
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
 }
 
 /* Status Bar */
@@ -764,6 +834,14 @@ th.col-filtered {
   border-radius: 2px;
   margin-bottom: 1px;
   min-height: 20px;
+}
+
+.col-profile-row-clickable {
+  cursor: pointer;
+}
+
+.col-profile-row-clickable:hover {
+  background: var(--vscode-list-hoverBackground);
 }
 
 .col-profile-bar {

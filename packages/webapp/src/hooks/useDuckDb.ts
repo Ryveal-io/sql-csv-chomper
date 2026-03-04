@@ -14,12 +14,13 @@ export function useDuckDb() {
     error: null,
   });
   const initRef = useRef(false);
+  const initPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
 
-    initDuckDb()
+    initPromiseRef.current = initDuckDb()
       .then(() => {
         setState({ isReady: true, isLoading: false, error: null });
       })
@@ -29,6 +30,10 @@ export function useDuckDb() {
   }, []);
 
   const loadFile = async (fileName: string, content: Uint8Array): Promise<string> => {
+    // Wait for DuckDB to finish initializing before loading data
+    if (initPromiseRef.current) {
+      await initPromiseRef.current;
+    }
     return await loadCsvFromBytes(fileName, content);
   };
 

@@ -8,8 +8,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         entryFileNames: 'assets/index.js',
-        chunkFileNames: 'assets/[name].js',
         assetFileNames: 'assets/[name].[ext]',
+        // Inline all dynamic imports into a single bundle.
+        // VS Code webviews load scripts as classic (non-module) scripts,
+        // so cross-chunk ES module exports cause SyntaxError.
+        inlineDynamicImports: true,
       },
     },
   },

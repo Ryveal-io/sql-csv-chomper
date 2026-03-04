@@ -9,6 +9,7 @@ export type ExtensionToWebviewMessage =
 // Messages FROM webview TO extension host
 export type WebviewToExtensionMessage =
   | { type: 'ready' }
+  | { type: 'openFile' }
   | { type: 'csvData'; content: number[] }
   | { type: 'saveTable'; fileName: string; content: number[] }
   | { type: 'saveTableAs'; fileName: string; fileExtension: string; content: number[] }

@@ -185,6 +185,40 @@ function isDateColumnType(type: string): boolean {
 
 export { isDateColumnType };
 
+export interface ColumnQuickStats {
+  distinctCount: number;
+  nullCount: number;
+  totalRows: number;
+}
+
+export async function getColumnQuickStats(
+  tableName: string,
+  columns: { name: string }[]
+): Promise<Map<string, ColumnQuickStats>> {
+  if (!conn) throw new Error('DuckDB not connected');
+  const tbl = `"${tableName.replace(/"/g, '""')}"`;
+  // Build a single query that gets distinct + null counts for all columns
+  const selects = columns.map(c => {
+    const col = `"${c.name.replace(/"/g, '""')}"`;
+    const safe = c.name.replace(/[^a-zA-Z0-9_]/g, '_');
+    return `COUNT(DISTINCT ${col}) as dist_${safe}, COUNT(*) - COUNT(${col}) as null_${safe}`;
+  });
+  const result = await conn.query(
+    `SELECT COUNT(*) as total, ${selects.join(', ')} FROM ${tbl}`
+  );
+  const total = Number(result.getChild('total')?.get(0) ?? 0);
+  const stats = new Map<string, ColumnQuickStats>();
+  for (const c of columns) {
+    const safe = c.name.replace(/[^a-zA-Z0-9_]/g, '_');
+    stats.set(c.name, {
+      distinctCount: Number(result.getChild(`dist_${safe}`)?.get(0) ?? 0),
+      nullCount: Number(result.getChild(`null_${safe}`)?.get(0) ?? 0),
+      totalRows: total,
+    });
+  }
+  return stats;
+}
+
 export async function profileColumn(
   tableName: string,
   columnName: string,

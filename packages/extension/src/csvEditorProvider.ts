@@ -125,6 +125,35 @@ export class CsvEditorProvider implements vscode.CustomEditorProvider<CsvDocumen
           break;
         }
 
+        case 'openFile': {
+          const uris = await vscode.window.showOpenDialog({
+            canSelectMany: true,
+            filters: {
+              'Delimited Files': ['csv', 'tsv', 'tab', 'jsonl', 'txt'],
+              'All Files': ['*'],
+            },
+          });
+          if (uris) {
+            for (const uri of uris) {
+              const fileName = uri.path.split('/').pop() ?? 'data.csv';
+              const fileUri = webviewPanel.webview.asWebviewUri(uri).toString();
+
+              // Add the file's directory to localResourceRoots so webview can fetch it
+              const fileDir = vscode.Uri.joinPath(uri, '..');
+              const currentRoots = webviewPanel.webview.options.localResourceRoots ?? [];
+              if (!currentRoots.some(r => r.toString() === fileDir.toString())) {
+                webviewPanel.webview.options = {
+                  ...webviewPanel.webview.options,
+                  localResourceRoots: [...currentRoots, fileDir],
+                };
+              }
+
+              webviewPanel.webview.postMessage({ type: 'load', fileName, fileUri });
+            }
+          }
+          break;
+        }
+
         case 'saveTableAs': {
           const content = new Uint8Array(message.content);
           const baseName = (message.fileName as string).replace(/\.[^.]+$/, '');
