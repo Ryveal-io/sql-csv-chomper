@@ -26,6 +26,7 @@ mkdirSync(mcpDist, { recursive: true });
 cpSync(join(root, 'packages/mcp-server/out/server.js'), join(mcpDist, 'server.js'));
 cpSync(join(root, 'packages/mcp-server/out/server.js.map'), join(mcpDist, 'server.js.map'));
 cpSync(join(root, 'packages/mcp-server/src/launcher.mjs'), join(mcpDist, 'launcher.mjs'));
+cpSync(join(root, 'packages/mcp-server/src/cli.mjs'), join(mcpDist, 'cli.mjs'));
 cpSync(join(root, 'packages/mcp-server/mcp-package.json'), join(mcpDist, 'package.json'));
 
 console.log('Build complete.');

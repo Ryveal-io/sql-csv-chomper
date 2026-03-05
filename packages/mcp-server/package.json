@@ -1,21 +1,46 @@
 {
-  "name": "sql-csv-tool-mcp",
-  "version": "0.1.0",
-  "private": true,
+  "name": "sql-csv-chomper-mcp",
+  "version": "0.3.2",
+  "description": "MCP server for querying and editing CSV/TSV files with SQL, powered by DuckDB. Works with Claude Code, Copilot, and other MCP clients.",
   "type": "module",
-  "bin": {
-    "sql-csv-mcp": "./out/server.js"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ryveal-io/sql-csv-chomper.git",
+    "directory": "packages/mcp-server"
   },
+  "homepage": "https://github.com/Ryveal-io/sql-csv-chomper#mcp-server",
+  "keywords": [
+    "csv",
+    "tsv",
+    "sql",
+    "duckdb",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "copilot",
+    "ai"
+  ],
+  "bin": {
+    "sql-csv-chomper-mcp": "./out/cli.mjs"
+  },
+  "files": [
+    "out/cli.mjs",
+    "out/server.js",
+    "out/server.js.map",
+    "README.md"
+  ],
   "scripts": {
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch"
   },
   "dependencies": {
-    "duckdb-async": "^1.4.2",
-    "@modelcontextprotocol/sdk": "^1.12.1",
-    "zod": "^3.24.0"
+    "duckdb": "^1.3.0"
   },
   "devDependencies": {
+    "duckdb-async": "^1.4.2",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.24.0",
     "esbuild": "^0.24.0",
     "typescript": "^5.7.0",
     "@types/node": "^20.0.0"

@@ -20,8 +20,6 @@ export function activate(context: vscode.ExtensionContext) {
   // Register the "Configure MCP for Claude CLI" command
   context.subscriptions.push(
     vscode.commands.registerCommand('sqlCsvTool.configureMcpClaude', async () => {
-      const mcpServerPath = vscode.Uri.joinPath(context.extensionUri, 'out', 'mcp', 'launcher.mjs').fsPath;
-
       const scopeChoice = await vscode.window.showQuickPick(
         [
           { label: 'User (all projects)', description: '--scope user', value: 'user' },
@@ -34,11 +32,11 @@ export function activate(context: vscode.ExtensionContext) {
       const terminal = vscode.window.createTerminal('Configure MCP');
       terminal.show();
       terminal.sendText(
-        `claude mcp add sql-csv-tool --scope ${scopeChoice.value} -- node "${mcpServerPath}"`
+        `claude mcp add sql-csv-chomper --scope ${scopeChoice.value} -- npx -y sql-csv-chomper-mcp`
       );
 
       vscode.window.showInformationMessage(
-        `Running: claude mcp add sql-csv-tool --scope ${scopeChoice.value}. Check the terminal for output.`
+        `Running: claude mcp add sql-csv-chomper --scope ${scopeChoice.value}. Check the terminal for output.`
       );
     })
   );

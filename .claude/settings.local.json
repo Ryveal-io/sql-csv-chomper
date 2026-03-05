@@ -53,7 +53,14 @@
       "Bash(timeout 5 node launcher.mjs)",
       "Bash(/Users/msawczuk/Documents/GitHub/sql-csv-tool/packages/extension/.vscodeignore:*)",
       "Bash(git add -A)",
-      "Bash(git commit -m \"fix: Windows MCP launcher - use npm.cmd, better error output, cleaner README\")"
+      "Bash(git commit -m \"fix: Windows MCP launcher - use npm.cmd, better error output, cleaner README\")",
+      "Bash(xargs -I{} sh -c 'echo \"\"=== {} ===\"\"; head -3 {}')",
+      "Bash(npm pack --dry-run)",
+      "Bash(npm publish)",
+      "Bash(npm publish --otp=971817)",
+      "Bash(npm view sql-csv-chomper-mcp --json)",
+      "Bash(npm view sql-csv-chomper-mcp bin)",
+      "Bash(npm publish --otp=370769)"
     ],
     "additionalDirectories": [
       "/Users/msawczuk/Documents/GitHub/sql-csv-tool",

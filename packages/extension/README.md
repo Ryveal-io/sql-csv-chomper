@@ -78,13 +78,15 @@ Export your data exactly how you need it:
 
 SQL CSV Chomper includes a bundled **MCP (Model Context Protocol) server** so AI assistants can work with your CSV files directly. No more "write me a Python script to filter column X" — just let them query.
 
+> The MCP server is also available as a standalone npm package: [`sql-csv-chomper-mcp`](https://www.npmjs.com/package/sql-csv-chomper-mcp)
+
 ### GitHub Copilot
 
 The MCP server registers automatically in VS Code 1.99+. Copilot can load files, run queries, edit data, and push results into the visual editor.
 
 ### Claude Code
 
-The entry point is `out/mcp/launcher.mjs` — it auto-installs the native DuckDB binary on first run (takes ~10 seconds).
+The MCP server is published as an npm package — no path wrangling needed. Works on macOS, Linux, and Windows.
 
 **Option 1 — From VS Code** (easiest):
 
@@ -93,32 +95,14 @@ The entry point is `out/mcp/launcher.mjs` — it auto-installs the native DuckDB
 3. Choose **User** (all projects) or **Project** (this workspace)
 4. Done — Claude can now chomp your CSVs
 
-**Option 2 — macOS / Linux terminal**:
+**Option 2 — Terminal** (any OS):
 
 ```bash
-# Auto-find the latest installed version
-CHOMPER="$(ls -d ~/.vscode/extensions/marksawczuk.sql-csv-chomper-*/out/mcp/launcher.mjs | sort -V | tail -1)"
-echo "Using: $CHOMPER"
+# All projects
+claude mcp add sql-csv-chomper --scope user -- npx -y sql-csv-chomper-mcp
 
-# Add to Claude (pick one)
-claude mcp add sql-csv-chomper --scope user -- node "$CHOMPER"
-claude mcp add sql-csv-chomper --scope project -- node "$CHOMPER"
-```
-
-**Option 3 — Windows PowerShell**:
-
-```powershell
-# Auto-find the latest installed version
-$Ext = Get-ChildItem "$HOME\.vscode\extensions" -Directory |
-  Where-Object { $_.Name -like "marksawczuk.sql-csv-chomper-*" } |
-  Sort-Object Name | Select-Object -Last 1
-
-$Launcher = Join-Path $Ext.FullName "out\mcp\launcher.mjs"
-Write-Host "Using: $Launcher"
-
-# Add to Claude (pick one)
-claude mcp add sql-csv-chomper --scope user -- node $Launcher
-claude mcp add sql-csv-chomper --scope project -- node $Launcher
+# This project only
+claude mcp add sql-csv-chomper --scope project -- npx -y sql-csv-chomper-mcp
 ```
 
 **Upgrading?** Remove the old MCP first:

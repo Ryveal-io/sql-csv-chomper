@@ -1,4 +1,5 @@
 import * as esbuild from 'esbuild';
+import { cpSync } from 'fs';
 
 const isWatch = process.argv.includes('--watch');
 
@@ -24,5 +25,6 @@ if (isWatch) {
   console.log('Watching MCP server...');
 } else {
   await esbuild.build(buildOptions);
+  cpSync('src/cli.mjs', 'out/cli.mjs');
   console.log('MCP server built.');
 }
