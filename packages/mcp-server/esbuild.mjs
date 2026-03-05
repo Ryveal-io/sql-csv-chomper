@@ -15,7 +15,6 @@ const buildOptions = {
   },
   external: [
     'duckdb',
-    'duckdb-async',
   ],
 };
 

@@ -46,7 +46,12 @@
       "Bash(git config http.postBuffer 524288000)",
       "WebFetch(domain:marketplace.visualstudio.com)",
       "Bash(curl -sI \"https://raw.githubusercontent.com/Ryveal-io/sql-csv-tool/main/packages/extension/images/img_01_sql_chomper_button.png\")",
-      "Bash(curl -sI \"https://raw.githubusercontent.com/Ryveal-io/sql-csv-chomper/refs/heads/main/packages/extension/images/img_01_sql_chomper_button.png\")"
+      "Bash(curl -sI \"https://raw.githubusercontent.com/Ryveal-io/sql-csv-chomper/refs/heads/main/packages/extension/images/img_01_sql_chomper_button.png\")",
+      "Bash(git remote set-url origin https://github.com/Ryveal-io/sql-csv-chomper.git)",
+      "Bash(python3:*)",
+      "Bash(claude mcp:*)",
+      "Bash(timeout 5 node launcher.mjs)",
+      "Bash(/Users/msawczuk/Documents/GitHub/sql-csv-tool/packages/extension/.vscodeignore:*)"
     ],
     "additionalDirectories": [
       "/Users/msawczuk/Documents/GitHub/sql-csv-tool",

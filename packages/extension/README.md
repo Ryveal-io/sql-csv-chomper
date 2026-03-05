@@ -82,6 +82,44 @@ SQL CSV Chomper includes a bundled **MCP (Model Context Protocol) server** so AI
 
 The MCP server registers automatically in VS Code 1.99+. Copilot can load files, run queries, edit data, and push results into the visual editor.
 
+### Claude CLI check if installed (Windows and Mac OS)
+
+See if you have an old version installed, remove it if necessary before upgrading:
+```bash
+claude mcp list
+claude mcp remove sql-csv-chomper
+```
+
+### Claude CLI. MCP install for Mac OS
+```bash
+EXT_LATEST="$(ls -d "$HOME/.vscode/extensions/marksawczuk.sql-csv-chomper-"* | sort -V | tail -n 1)"
+echo "Using: $EXT_LATEST"
+find "$EXT_LATEST/out/mcp" -maxdepth 3 -type f -name "*.js"
+
+# now pick the right entry file from the list above and set it here:
+ENTRY="$EXT_LATEST/out/mcp/<ENTRYFILE>.js"
+
+claude mcp add --transport stdio sql-csv-chomper -- node "$ENTRY"
+```
+
+### Claude CLI install from Windows PowerShell
+```powershell
+$ExtBase = Join-Path $HOME ".vscode\extensions"
+
+$ExtLatest = Get-ChildItem -Path $ExtBase -Directory |
+  Where-Object { $_.Name -like "marksawczuk.sql-csv-chomper-*" } |
+  Sort-Object Name |
+  Select-Object -Last 1
+
+if (-not $ExtLatest) {
+  throw "Could not find marksawczuk.sql-csv-chomper-* under $ExtBase. Install the VS Code extension first."
+}
+
+$ExtPath = $ExtLatest.FullName
+Write-Host "Using extension folder:" $ExtPath
+```
+
+
 ### Claude Code
 
 **Option 1 — From VS Code** (easiest):

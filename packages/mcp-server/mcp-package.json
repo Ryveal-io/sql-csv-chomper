@@ -1,0 +1,9 @@
+{
+  "name": "sql-csv-chomper-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "duckdb": "^1.3.0"
+  }
+}

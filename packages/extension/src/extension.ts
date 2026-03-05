@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Register the "Configure MCP for Claude CLI" command
   context.subscriptions.push(
     vscode.commands.registerCommand('sqlCsvTool.configureMcpClaude', async () => {
-      const mcpServerPath = vscode.Uri.joinPath(context.extensionUri, 'out', 'mcp', 'server.js').fsPath;
+      const mcpServerPath = vscode.Uri.joinPath(context.extensionUri, 'out', 'mcp', 'launcher.mjs').fsPath;
 
       const scopeChoice = await vscode.window.showQuickPick(
         [
@@ -146,7 +146,7 @@ function startBridgeServer(context: vscode.ExtensionContext) {
 
 function registerMcpServer(context: vscode.ExtensionContext, bridgePort: number) {
   // The MCP server JS file is bundled alongside the extension
-  const mcpServerPath = vscode.Uri.joinPath(context.extensionUri, 'out', 'mcp', 'server.js').fsPath;
+  const mcpServerPath = vscode.Uri.joinPath(context.extensionUri, 'out', 'mcp', 'launcher.mjs').fsPath;
 
   try {
     // vscode.lm.registerMcpServerDefinitionProvider is available in VS Code 1.99+
